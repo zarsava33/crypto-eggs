@@ -6,8 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#000000" />
     <meta name="description" content="Crypto Eggs - Un juego de incubación de huevos y minería" />
+    <meta property="og:title" content="Crypto Eggs Game" />
+    <meta property="og:description" content="Un juego de minería y crianza de huevos crypto" />
+    <meta property="og:type" content="website" />
     <title>Crypto Eggs</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Script para manejar redirecciones en GitHub Pages -->
+    <script type="text/javascript">
+      (function(l) {
+        if (l.search[1] === '/' ) {
+          var decoded = l.search.slice(1).split('&').map(function(s) { 
+            return s.replace(/~and~/g, '&')
+          }).join('?');
+          window.history.replaceState(null, null,
+              l.pathname.slice(0, -1) + decoded + l.hash
+          );
+        }
+      }(window.location))
+    </script>
   </head>
   <body class="bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
     <div id="root"></div>
