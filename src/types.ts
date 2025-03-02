@@ -1,7 +1,7 @@
 export type CryptoCurrencySymbol = 'BTC' | 'USDT';
 
 export type Rarity = 'common' | 'rare' | 'epic' | 'legendary';
-export type EggStatus = 'idle' | 'incubating' | 'ready' | 'hatched';
+export type EggStatus = 'incubating' | 'ready' | 'hatched';
 export type Section = 'farm' | 'shop' | 'inventory' | 'friends' | 'profile';
 
 export interface CryptoCurrency {
@@ -21,15 +21,16 @@ export interface CryptoInfo {
 export interface Egg {
   id: string;
   type: string;
-  rarity: 'common' | 'rare' | 'epic' | 'legendary';
+  rarity: Rarity;
   level: number;
   power: number;
   image: string;
-  status: 'incubating' | 'ready' | 'hatched';
+  status: EggStatus;
   purchaseDate: Date;
   incubationDays: number;
   incubationStartTime: number;
   incubationEndTime: number;
+  incubationTimeRequired: number;
   value: number;
 }
 
@@ -39,6 +40,7 @@ export interface Booster {
   multiplier: number;
   duration: number;
   active: boolean;
+  startTime: number;
   timeRemaining?: number;
 }
 
@@ -48,7 +50,7 @@ export interface ShopItem {
   description: string;
   price: number;
   type: 'egg' | 'booster';
-  rarity?: 'common' | 'rare' | 'epic' | 'legendary';
+  rarity?: Rarity;
   image: string;
   incubationDays?: number;
   value?: number;

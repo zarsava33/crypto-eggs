@@ -45,6 +45,8 @@ export function createNewEgg(rarity: Rarity): Egg {
     legendary: 4
   }[rarity];
 
+  const incubationTimeRequired = incubationDays * 24 * 60 * 60 * 1000;
+
   const egg: Egg = {
     id: crypto.randomUUID(),
     type: 'egg',
@@ -56,26 +58,23 @@ export function createNewEgg(rarity: Rarity): Egg {
     purchaseDate: new Date(),
     incubationDays,
     incubationStartTime: now,
-    incubationEndTime: now + incubationDays * 24 * 60 * 60 * 1000,
+    incubationEndTime: now + incubationTimeRequired,
+    incubationTimeRequired,
     value: Math.floor(Math.random() * 100) + 1
   };
 
   return egg;
 }
 
-export function createBooster(type: Booster['type'], duration: number, multiplier: number): Booster {
-  const now = Date.now();
-
-  const booster: Booster = {
+export function createNewBooster(type: 'mining' | 'hatching' | 'experience', duration: number, multiplier: number): Booster {
+  return {
     id: crypto.randomUUID(),
     type,
     multiplier,
     duration,
-    startTime: now,
-    endTime: now + duration * 1000
+    active: true,
+    startTime: Date.now()
   };
-
-  return booster;
 }
 
 export function calculateEggProgress(egg: Egg): number {

@@ -29,7 +29,7 @@ export function useGameLogic() {
         });
 
         const updatedBoosters = current.activeBoosters.filter(booster => 
-          Date.now() < booster.endTime
+          Date.now() < (booster.startTime + booster.duration * 1000)
         );
 
         return {
@@ -74,11 +74,11 @@ export function useGameLogic() {
         } else {
           const newBooster: Booster = {
             id: crypto.randomUUID(),
-            type: 'speed',
+            type: 'hatching',
             multiplier: item.multiplier || 2,
             duration: item.duration || 3600,
-            startTime: Date.now(),
-            endTime: Date.now() + (item.duration || 3600) * 1000
+            active: true,
+            startTime: Date.now()
           };
 
           return {

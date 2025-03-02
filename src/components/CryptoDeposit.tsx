@@ -8,9 +8,18 @@ type WalletType = 'binance' | 'bybit' | 'telegram';
 
 interface CryptoDepositProps {
   onDeposit: (amount: number, currency: CryptoCurrencySymbol, wallet: CryptoWallet) => Promise<void>;
+  depositHistory?: Array<{
+    id: string;
+    amount: number;
+    currency: CryptoCurrencySymbol;
+    timestamp: number;
+    wallet?: {
+      type: WalletType;
+    };
+  }>;
 }
 
-export function CryptoDeposit({ onDeposit }: CryptoDepositProps) {
+export function CryptoDeposit({ onDeposit, depositHistory = [] }: CryptoDepositProps) {
   const { state: gameState } = useGame();
   const [selectedCurrency, setSelectedCurrency] = useState<CryptoCurrency>(SUPPORTED_CRYPTOCURRENCIES[0]);
   const [selectedWallet, setSelectedWallet] = useState<WalletType>('binance');
@@ -181,11 +190,11 @@ export function CryptoDeposit({ onDeposit }: CryptoDepositProps) {
       </form>
 
       {/* Historial de depósitos */}
-      {gameState.depositHistory.length > 0 && (
+      {depositHistory.length > 0 && (
         <div>
           <h4 className="text-lg font-semibold mb-2">Recent Deposits</h4>
           <div className="space-y-2">
-            {gameState.depositHistory.slice(0, 3).map((tx) => (
+            {depositHistory.slice(0, 3).map((tx) => (
               <div
                 key={tx.id}
                 className="flex items-center justify-between p-2 bg-white/5 rounded-lg"
