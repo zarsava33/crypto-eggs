@@ -22,12 +22,15 @@ export interface Egg {
   id: string;
   type: string;
   rarity: 'common' | 'rare' | 'epic' | 'legendary';
-  hatchTime: number;
-  reward: {
-    coins: number;
-    experience: number;
-    items?: ShopItem[];
-  };
+  level: number;
+  power: number;
+  image: string;
+  status: 'incubating' | 'ready' | 'hatched';
+  purchaseDate: Date;
+  incubationDays: number;
+  incubationStartTime: number;
+  incubationEndTime: number;
+  value: number;
 }
 
 export interface Booster {
@@ -44,8 +47,13 @@ export interface ShopItem {
   name: string;
   description: string;
   price: number;
-  type: 'egg' | 'booster' | 'cosmetic';
-  rarity: 'common' | 'rare' | 'epic' | 'legendary';
+  type: 'egg' | 'booster';
+  rarity?: 'common' | 'rare' | 'epic' | 'legendary';
+  image: string;
+  incubationDays?: number;
+  value?: number;
+  multiplier?: number;
+  duration?: number;
 }
 
 export interface CryptoWallet {

