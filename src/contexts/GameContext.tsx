@@ -3,7 +3,7 @@ import { useGameLogic } from '../hooks/useGameLogic';
 import type { GameState, ShopItem, Profile, DonationTier, ReferralTier, ReferralStats, Referral } from '../types';
 import { useAuth } from './AuthContext';
 
-interface GameContextType {
+export interface GameContextType {
   state: GameState;
   actions: {
     buyEgg: (item: ShopItem) => Promise<void>;
@@ -21,7 +21,23 @@ interface GameContextType {
   };
 }
 
-const GameContext = createContext<GameContextType | undefined>(undefined);
+const GameContext = createContext<GameContextType>({
+  state: {} as GameState,
+  actions: {
+    buyEgg: async () => {},
+    buyBooster: async () => {},
+    collectEgg: () => {},
+    startIncubation: () => {},
+    updateProfile: () => {},
+    getDonationTiers: () => [],
+    getCurrentTier: () => ({} as DonationTier),
+    getReferralTiers: () => [],
+    getReferralStats: () => ({} as ReferralStats),
+    getReferrals: () => [],
+    applyReferralCode: () => {},
+    resetGameState: () => {}
+  }
+});
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
   const { user, saveProgress, loadProgress } = useAuth();
@@ -71,7 +87,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     }
   }, [state, user]);
 
-  const actions = {
+  const actions: GameContextType['actions'] = {
     buyEgg: async (item: ShopItem) => {
       await buyItem(item);
       if (user) {
@@ -96,19 +112,24 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         saveProgress(state).catch(console.error);
       }
     },
-    updateProfile,
-    getDonationTiers,
-    getCurrentTier,
-    getReferralTiers,
-    getReferralStats,
-    getReferrals,
+    updateProfile: (profile: Partial<Profile>) => {
+      updateProfile(profile);
+      if (user) {
+        saveProgress(state).catch(console.error);
+      }
+    },
+    getDonationTiers: () => getDonationTiers(),
+    getCurrentTier: () => getCurrentTier(),
+    getReferralTiers: () => getReferralTiers(),
+    getReferralStats: () => getReferralStats(),
+    getReferrals: () => getReferrals(),
     applyReferralCode: (code: string) => {
       applyReferralCodeBase(code);
       if (user) {
         saveProgress(state).catch(console.error);
       }
     },
-    resetGameState
+    resetGameState: () => resetGameState()
   };
 
   return (
@@ -118,7 +139,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function useGame() {
+export function useGame(): GameContextType {
   const context = useContext(GameContext);
   if (!context) {
     throw new Error('useGame debe usarse dentro de un GameProvider');
