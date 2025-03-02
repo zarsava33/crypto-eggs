@@ -20,7 +20,10 @@ export function useGameLogic() {
       legendaryEggs: 0,
       totalPower: 0,
       averageLevel: 0
-    }
+    },
+    currentStreak: 0,
+    dailyRewards: [],
+    lastDailyReward: null
   });
 
   useEffect(() => {
@@ -126,9 +129,86 @@ export function useGameLogic() {
     });
   };
 
+  const startIncubation = (eggId: string) => {
+    setGameState(current => {
+      const egg = current.eggs.find(e => e.id === eggId);
+      if (!egg || egg.status !== 'idle') return current;
+
+      const now = Date.now();
+      return {
+        ...current,
+        eggs: current.eggs.map(e => 
+          e.id === eggId 
+            ? { 
+                ...e, 
+                status: 'incubating' as EggStatus,
+                incubationStartTime: now,
+                incubationEndTime: now + e.incubationTimeRequired
+              }
+            : e
+        )
+      };
+    });
+  };
+
+  const buyMiningRig = () => {
+    const rigPrice = 1000;
+    if (gameState.money >= rigPrice) {
+      setGameState(current => ({
+        ...current,
+        money: current.money - rigPrice,
+        stats: {
+          ...current.stats,
+          totalPower: current.stats.totalPower + 100
+        }
+      }));
+    }
+  };
+
+  const upgradeMiningRig = () => {
+    const upgradePrice = 500;
+    if (gameState.money >= upgradePrice) {
+      setGameState(current => ({
+        ...current,
+        money: current.money - upgradePrice,
+        stats: {
+          ...current.stats,
+          totalPower: current.stats.totalPower + 50
+        }
+      }));
+    }
+  };
+
+  const claimDailyReward = () => {
+    const now = Date.now();
+    setGameState(current => {
+      const lastReward = current.lastDailyReward || 0;
+      const isNextDay = now - lastReward > 24 * 60 * 60 * 1000;
+      
+      if (!isNextDay) return current;
+
+      const reward = 100 * (current.currentStreak + 1);
+      return {
+        ...current,
+        money: current.money + reward,
+        currentStreak: current.currentStreak + 1,
+        lastDailyReward: now,
+        dailyRewards: [...current.dailyRewards, { amount: reward, timestamp: now }]
+      };
+    });
+  };
+
+  const canClaimDailyReward = !gameState.lastDailyReward || 
+    (Date.now() - gameState.lastDailyReward > 24 * 60 * 60 * 1000);
+
   return {
     gameState,
     buyItem,
-    collectEgg
+    collectEgg,
+    startIncubation,
+    buyMiningRig,
+    upgradeMiningRig,
+    claimDailyReward,
+    canClaimDailyReward
   };
 }

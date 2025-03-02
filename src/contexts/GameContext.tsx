@@ -8,20 +8,30 @@ interface GameContextType {
     buyEgg: (item: ShopItem) => void;
     buyBooster: (item: ShopItem) => void;
     collectEgg: (eggId: string) => void;
+    startIncubation: (eggId: string) => void;
+    buyMiningRig: () => void;
+    upgradeMiningRig: () => void;
+    claimDailyReward: () => void;
+    canClaimDailyReward: boolean;
   };
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export function GameProvider({ children }: { children: ReactNode }) {
-  const { gameState, buyItem, collectEgg } = useGameLogic();
+  const { gameState, buyItem, collectEgg, startIncubation, buyMiningRig, upgradeMiningRig, claimDailyReward, canClaimDailyReward } = useGameLogic();
 
   const value: GameContextType = {
     state: gameState,
     actions: {
       buyEgg: (item) => buyItem(item),
       buyBooster: (item) => buyItem(item),
-      collectEgg
+      collectEgg,
+      startIncubation,
+      buyMiningRig,
+      upgradeMiningRig,
+      claimDailyReward,
+      canClaimDailyReward
     }
   };
 

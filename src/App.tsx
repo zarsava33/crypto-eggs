@@ -6,7 +6,9 @@ function App() {
   return (
     <BrowserRouter basename="/crypto-eggs">
       <GameProvider>
-        <MainLayout />
+        <div className="min-h-screen bg-gray-900">
+          <MainLayout />
+        </div>
       </GameProvider>
     </BrowserRouter>
   );

@@ -1,7 +1,7 @@
 export type CryptoCurrencySymbol = 'BTC' | 'USDT';
 
 export type Rarity = 'common' | 'rare' | 'epic' | 'legendary';
-export type EggStatus = 'incubating' | 'ready' | 'hatched';
+export type EggStatus = 'idle' | 'incubating' | 'ready' | 'collected';
 export type Section = 'farm' | 'shop' | 'inventory' | 'friends' | 'profile';
 
 export interface CryptoCurrency {
@@ -84,6 +84,11 @@ export interface Player {
   lastActive: number;
 }
 
+export interface DailyReward {
+  amount: number;
+  timestamp: number;
+}
+
 export interface GameState {
   money: number;
   coins: number;
@@ -106,6 +111,9 @@ export interface GameState {
     totalPower: number;
     averageLevel: number;
   };
+  currentStreak: number;
+  dailyRewards: DailyReward[];
+  lastDailyReward: number | null;
 }
 
 export interface TelegramUser {
