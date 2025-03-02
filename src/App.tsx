@@ -5,22 +5,25 @@ import { Shop } from './components/Shop';
 import { Inventory } from './components/Inventory';
 import { ProfileSection } from './sections/ProfileSection';
 import { GameProvider } from './contexts/GameContext';
+import { ErrorProvider } from './contexts/ErrorContext';
 
 function App() {
   return (
-    <GameProvider>
-      <Router>
-        <MainLayout>
-          <Routes>
-            <Route path="/" element={<Farm />} />
-            <Route path="/farm" element={<Farm />} />
-            <Route path="/shop" element={<Shop />} />
-            <Route path="/inventory" element={<Inventory />} />
-            <Route path="/profile" element={<ProfileSection />} />
-          </Routes>
-        </MainLayout>
-      </Router>
-    </GameProvider>
+    <ErrorProvider>
+      <GameProvider>
+        <Router>
+          <MainLayout>
+            <Routes>
+              <Route path="/" element={<Farm />} />
+              <Route path="/farm" element={<Farm />} />
+              <Route path="/shop" element={<Shop />} />
+              <Route path="/inventory" element={<Inventory />} />
+              <Route path="/profile" element={<ProfileSection />} />
+            </Routes>
+          </MainLayout>
+        </Router>
+      </GameProvider>
+    </ErrorProvider>
   );
 }
 
