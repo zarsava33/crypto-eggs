@@ -100,105 +100,45 @@ export function useGameLogic() {
     }
   }, [gameState]);
 
-  const buyItem = useCallback((item: ShopItem) => {
-    if (gameState.money >= item.price) {
-      setGameState(current => {
-        if (item.type === 'egg') {
-          const incubationDays = item.incubationDays || 1;
-          const now = Date.now();
-          const newEgg = {
-            id: Math.random().toString(36).substring(7),
-            type: item.type,
-            rarity: item.rarity || 'common',
-            level: 1,
-            power: 10,
-            image: item.image,
-            status: 'idle' as const,
-            purchaseDate: new Date(),
-            incubationDays,
-            incubationStartTime: 0,
-            incubationEndTime: 0,
-            incubationTimeRequired: incubationDays * 24 * 60 * 60 * 1000,
-            value: item.value || 0
-          };
-
-          return {
-            ...current,
-            money: current.money - item.price,
-            eggs: [...current.eggs, newEgg]
-          };
-        } else {
-          const now = Date.now();
-          const newBooster = {
-            id: Math.random().toString(36).substring(7),
-            type: item.type,
-            duration: item.duration || 3600000,
-            multiplier: item.multiplier || 2,
-            active: true,
-            startTime: now,
-            timeRemaining: item.duration || 3600000
-          };
-
-          return {
-            ...current,
-            money: current.money - item.price,
-            activeBoosters: [...current.activeBoosters, newBooster]
-          };
-        }
-      });
-    }
-  }, [gameState.money]);
-
-  const collectEgg = useCallback((eggId: string) => {
-    setGameState(current => {
-      const egg = current.eggs.find(e => e.id === eggId);
-      if (!egg || egg.status !== 'ready') return current;
-
-      const updatedEggs = current.eggs.filter(e => e.id !== eggId);
-
-      return {
-        ...current,
-        money: current.money + egg.value,
-        coins: current.coins + egg.value,
-        eggs: updatedEggs,
-        totalEggsCollected: current.totalEggsCollected + 1,
-        eggsHatched: current.eggsHatched + 1,
-        experience: current.experience + egg.value,
-        level: Math.floor(current.experience / 1000) + 1,
-        stats: {
-          ...current.stats,
-          totalEggs: current.stats.totalEggs + 1,
-          legendaryEggs: current.stats.legendaryEggs + (egg.rarity === 'legendary' ? 1 : 0),
-          totalPower: current.stats.totalPower + egg.power,
-          averageLevel: (current.stats.averageLevel * current.stats.totalEggs + egg.level) / (current.stats.totalEggs + 1)
-        }
-      };
-    });
+  const buyItem = useCallback(async (item: ShopItem) => {
+    setGameState(prev => ({
+      ...prev,
+      coins: prev.coins - item.price,
+      inventory: {
+        ...prev.inventory,
+        [item.type === 'egg' ? 'eggs' : 'boosters']: [
+          ...prev.inventory[item.type === 'egg' ? 'eggs' : 'boosters'],
+          item.id
+        ]
+      }
+    }));
   }, []);
 
-  const startIncubation = useCallback((eggId: string) => {
-    setGameState(current => {
-      const egg = current.eggs.find(e => e.id === eggId);
-      if (!egg || egg.status !== 'idle') return current;
+  const collectEgg = useCallback(() => {
+    setGameState(prev => ({
+      ...prev,
+      stats: {
+        ...prev.stats,
+        eggsHatched: prev.stats.eggsHatched + 1
+      }
+    }));
+  }, []);
 
-      const now = Date.now();
-      const updatedEggs = current.eggs.map(e => {
-        if (e.id === eggId) {
-          return {
-            ...e,
-            status: 'incubating' as const,
-            incubationStartTime: now,
-            incubationEndTime: now + e.incubationTimeRequired
-          };
-        }
-        return e;
-      });
+  const startIncubation = useCallback(() => {
+    const now = new Date();
+    const endTime = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours
 
-      return {
-        ...current,
-        eggs: updatedEggs
-      };
-    });
+    setGameState(prev => ({
+      ...prev,
+      eggs: prev.eggs.map(egg => 
+        egg.status === 'idle' ? {
+          ...egg,
+          status: 'incubating',
+          incubationStartTime: now.toISOString(),
+          incubationEndTime: endTime.toISOString()
+        } : egg
+      )
+    }));
   }, []);
 
   const buyMiningRig = useCallback(() => {
@@ -259,10 +199,7 @@ export function useGameLogic() {
   const updateProfile = useCallback((profile: Partial<Profile>) => {
     setGameState(prev => ({
       ...prev,
-      profile: {
-        ...prev.profile,
-        ...profile
-      }
+      profile: { ...prev.profile, ...profile }
     }));
   }, []);
 
@@ -275,32 +212,26 @@ export function useGameLogic() {
       {
         id: 'bronze',
         name: 'Bronce',
-        minAmount: 10,
-        benefits: ['2x XP', '1 Huevo Gratis'],
-        icon: '🥉',
-        color: 'text-amber-600',
-        network: 'BTC',
-        logo: '/assets/btc-logo.png'
+        description: 'Nivel básico de donación',
+        requiredAmount: 10,
+        benefits: ['Huevo especial', '+10% velocidad de incubación'],
+        icon: '🥉'
       },
       {
         id: 'silver',
         name: 'Plata',
-        minAmount: 50,
-        benefits: ['3x XP', '3 Huevos Gratis', 'Insignia Especial'],
-        icon: '🥈',
-        color: 'text-gray-400',
-        network: 'BTC',
-        logo: '/assets/btc-logo.png'
+        description: 'Nivel intermedio de donación',
+        requiredAmount: 50,
+        benefits: ['Huevo raro', '+25% velocidad de incubación', 'Insignia especial'],
+        icon: '🥈'
       },
       {
         id: 'gold',
         name: 'Oro',
-        minAmount: 100,
-        benefits: ['5x XP', '5 Huevos Gratis', 'Insignia Exclusiva', 'Acceso VIP'],
-        icon: '🥇',
-        color: 'text-yellow-400',
-        network: 'BTC',
-        logo: '/assets/btc-logo.png'
+        description: 'Nivel premium de donación',
+        requiredAmount: 100,
+        benefits: ['Huevo legendario', '+50% velocidad de incubación', 'Insignia exclusiva', 'Soporte prioritario'],
+        icon: '🥇'
       }
     ];
   }, []);
@@ -312,40 +243,40 @@ export function useGameLogic() {
   const getReferralTiers = useCallback((): ReferralTier[] => {
     return [
       {
-        id: 'tier1',
-        name: 'Nivel 1',
-        level: 1,
-        minReferrals: 5,
-        reward: {
-          coins: 10,
+        id: 'starter',
+        name: 'Iniciado',
+        description: 'Nivel inicial de referidos',
+        requiredReferrals: 5,
+        rewards: {
+          coins: 100,
           eggs: 1,
-          miningBonus: 0.1
+          boosters: 1
         },
-        color: 'text-green-400'
+        icon: '🌱'
       },
       {
-        id: 'tier2',
-        name: 'Nivel 2',
-        level: 2,
-        minReferrals: 15,
-        reward: {
-          coins: 30,
-          eggs: 2,
-          miningBonus: 0.2
-        },
-        color: 'text-blue-400'
-      },
-      {
-        id: 'tier3',
-        name: 'Nivel 3',
-        level: 3,
-        minReferrals: 30,
-        reward: {
-          coins: 60,
+        id: 'advanced',
+        name: 'Avanzado',
+        description: 'Nivel intermedio de referidos',
+        requiredReferrals: 20,
+        rewards: {
+          coins: 500,
           eggs: 3,
-          miningBonus: 0.3
+          boosters: 2
         },
-        color: 'text-purple-400'
+        icon: '🌿'
+      },
+      {
+        id: 'master',
+        name: 'Maestro',
+        description: 'Nivel experto de referidos',
+        requiredReferrals: 50,
+        rewards: {
+          coins: 1000,
+          eggs: 5,
+          boosters: 3
+        },
+        icon: '🌳'
       }
     ];
   }, []);
@@ -355,10 +286,9 @@ export function useGameLogic() {
       totalReferrals: 0,
       activeReferrals: 0,
       totalEarnings: 0,
-      currentTier: getReferralTiers()[0],
-      indirectReferrals: 0,
-      networkReferrals: 0,
-      miningBonus: 0
+      currentTier: 'starter',
+      nextTier: 'advanced',
+      progressToNextTier: 0
     };
   }, []);
 
@@ -366,8 +296,8 @@ export function useGameLogic() {
     return [];
   }, []);
 
-  const applyReferralCode = useCallback(async (code: string): Promise<boolean> => {
-    return Promise.resolve(true);
+  const applyReferralCode = useCallback((code: string) => {
+    console.log('Código de referido aplicado:', code);
   }, []);
 
   const resetGameState = useCallback(() => {

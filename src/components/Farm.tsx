@@ -5,14 +5,6 @@ import { motion } from 'framer-motion';
 export function Farm() {
   const { state, actions } = useGame();
 
-  const handleCollectEgg = (eggId: string) => {
-    actions.collectEgg(eggId);
-  };
-
-  const handleStartIncubation = (eggId: string) => {
-    actions.startIncubation(eggId);
-  };
-
   return (
     <div className="p-4">
       <h2 className="text-2xl font-bold mb-4 gradient-text">Mi Granja</h2>
@@ -32,7 +24,7 @@ export function Farm() {
             
             {egg.status === 'ready' && (
               <button
-                onClick={() => handleCollectEgg(egg.id)}
+                onClick={actions.collectEgg}
                 className="w-full btn-primary mt-2"
               >
                 Recolectar
@@ -41,7 +33,7 @@ export function Farm() {
             
             {egg.status === 'idle' && (
               <button
-                onClick={() => handleStartIncubation(egg.id)}
+                onClick={actions.startIncubation}
                 className="w-full btn-secondary mt-2"
               >
                 Incubar

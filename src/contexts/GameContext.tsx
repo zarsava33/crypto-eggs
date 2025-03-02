@@ -8,15 +8,15 @@ interface GameContextType {
   actions: {
     buyEgg: (item: ShopItem) => Promise<void>;
     buyBooster: (item: ShopItem) => Promise<void>;
-    collectEgg: (eggId: string) => void;
-    startIncubation: (eggId: string) => void;
+    collectEgg: () => void;
+    startIncubation: () => void;
     updateProfile: (profile: Partial<Profile>) => void;
     getDonationTiers: () => DonationTier[];
     getCurrentTier: () => DonationTier;
     getReferralTiers: () => ReferralTier[];
     getReferralStats: () => ReferralStats;
     getReferrals: () => Referral[];
-    applyReferralCode: (code: string) => Promise<boolean>;
+    applyReferralCode: (code: string) => void;
     resetGameState: () => void;
   };
 }
@@ -28,15 +28,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const {
     gameState: state,
     buyItem,
-    collectEgg,
-    startIncubation,
+    collectEgg: collectEggBase,
+    startIncubation: startIncubationBase,
     updateProfile,
     getDonationTiers,
     getCurrentTier,
     getReferralTiers,
     getReferralStats,
     getReferrals,
-    applyReferralCode,
+    applyReferralCode: applyReferralCodeBase,
     resetGameState
   } = useGameLogic();
 
@@ -84,15 +84,30 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         await saveProgress(state);
       }
     },
-    collectEgg,
-    startIncubation,
+    collectEgg: () => {
+      collectEggBase();
+      if (user) {
+        saveProgress(state).catch(console.error);
+      }
+    },
+    startIncubation: () => {
+      startIncubationBase();
+      if (user) {
+        saveProgress(state).catch(console.error);
+      }
+    },
     updateProfile,
     getDonationTiers,
     getCurrentTier,
     getReferralTiers,
     getReferralStats,
     getReferrals,
-    applyReferralCode,
+    applyReferralCode: (code: string) => {
+      applyReferralCodeBase(code);
+      if (user) {
+        saveProgress(state).catch(console.error);
+      }
+    },
     resetGameState
   };
 
