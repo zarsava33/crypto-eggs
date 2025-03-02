@@ -86,9 +86,18 @@ export interface Player {
 
 export interface GameState {
   money: number;
+  coins: number;
   eggs: Egg[];
   activeBoosters: Booster[];
   totalEggsCollected: number;
+  eggsHatched: number;
+  level: number;
+  experience: number;
+  currentEgg: {
+    type: string;
+    progress: number;
+    timeRemaining: number;
+  } | null;
   depositHistory: Transaction[];
   connectedWallets: CryptoWallet[];
   stats: {

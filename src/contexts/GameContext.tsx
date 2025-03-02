@@ -34,4 +34,6 @@ export function useGame() {
     throw new Error('useGame must be used within a GameProvider');
   }
   return context;
-} 
+}
+
+export default GameProvider; 

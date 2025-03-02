@@ -26,7 +26,9 @@ export function CryptoDeposit({ onDeposit, depositHistory = [] }: CryptoDepositP
   const [amount, setAmount] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const depositAddress = getDepositAddress(selectedCurrency.symbol, selectedCurrency.network);
+  const depositAddress = selectedCurrency.symbol === 'BTC' 
+    ? 'bc1qq4v73jd2kg7jcu7zu93haskxfe36x7ksu40glq' 
+    : 'TETdBsgM5BdWCM9W5RUiUnXGH3jUyhVy5M';
 
   const handleCopyAddress = () => {
     navigator.clipboard.writeText(depositAddress);
@@ -53,10 +55,9 @@ export function CryptoDeposit({ onDeposit, depositHistory = [] }: CryptoDepositP
     setIsProcessing(true);
     try {
       const wallet: CryptoWallet = {
-        type: selectedWallet,
         address: depositAddress,
-        network: selectedCurrency.network,
-        currency: selectedCurrency.symbol
+        network: selectedCurrency.symbol,
+        balance: numAmount
       };
       await onDeposit(numAmount, selectedCurrency.symbol, wallet);
       setAmount('');

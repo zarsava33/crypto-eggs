@@ -5,9 +5,14 @@ import type { GameState, ShopItem, Egg, Booster, EggStatus } from '../types';
 export function useGameLogic() {
   const [gameState, setGameState] = useState<GameState>({
     money: 100,
+    coins: 100,
     eggs: [],
     activeBoosters: [],
     totalEggsCollected: 0,
+    eggsHatched: 0,
+    level: 1,
+    experience: 0,
+    currentEgg: null,
     depositHistory: [],
     connectedWallets: [],
     stats: {
@@ -51,6 +56,10 @@ export function useGameLogic() {
     if (gameState.money >= item.price) {
       setGameState(current => {
         if (item.type === 'egg') {
+          const incubationDays = item.incubationDays || 1;
+          const incubationTimeRequired = incubationDays * 24 * 60 * 60 * 1000;
+          const now = Date.now();
+
           const newEgg: Egg = {
             id: crypto.randomUUID(),
             type: 'egg',
@@ -60,9 +69,10 @@ export function useGameLogic() {
             image: item.image,
             status: 'incubating',
             purchaseDate: new Date(),
-            incubationDays: item.incubationDays || 1,
-            incubationStartTime: Date.now(),
-            incubationEndTime: Date.now() + (item.incubationDays || 1) * 24 * 60 * 60 * 1000,
+            incubationDays,
+            incubationStartTime: now,
+            incubationEndTime: now + incubationTimeRequired,
+            incubationTimeRequired,
             value: item.value || 0
           };
 
@@ -99,8 +109,12 @@ export function useGameLogic() {
       return {
         ...current,
         money: current.money + egg.value,
+        coins: current.coins + egg.value,
         eggs: current.eggs.filter(e => e.id !== eggId),
         totalEggsCollected: current.totalEggsCollected + 1,
+        eggsHatched: current.eggsHatched + 1,
+        experience: current.experience + egg.value,
+        level: Math.floor(current.experience / 1000) + 1,
         stats: {
           ...current.stats,
           totalEggs: current.stats.totalEggs + 1,
