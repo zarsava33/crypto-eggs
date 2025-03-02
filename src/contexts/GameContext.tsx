@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect } from 'react';
 import { useGameLogic } from '../hooks/useGameLogic';
-import type { GameState, ShopItem } from '../types';
+import type { GameState, ShopItem, Profile, DonationTier, ReferralTier, ReferralStats, Referral } from '../types';
 import { useAuth } from './AuthContext';
 
 interface GameContextType {
@@ -8,9 +8,15 @@ interface GameContextType {
   actions: {
     buyEgg: (item: ShopItem) => Promise<void>;
     buyBooster: (item: ShopItem) => Promise<void>;
-    collectEgg: () => void;
-    startIncubation: () => void;
-    applyReferralCode: (code: string) => void;
+    collectEgg: (eggId: string) => void;
+    startIncubation: (eggId: string) => void;
+    updateProfile: (profile: Partial<Profile>) => void;
+    getDonationTiers: () => DonationTier[];
+    getCurrentTier: () => DonationTier;
+    getReferralTiers: () => ReferralTier[];
+    getReferralStats: () => ReferralStats;
+    getReferrals: () => Referral[];
+    applyReferralCode: (code: string) => Promise<boolean>;
     resetGameState: () => void;
   };
 }
@@ -24,6 +30,12 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     buyItem,
     collectEgg,
     startIncubation,
+    updateProfile,
+    getDonationTiers,
+    getCurrentTier,
+    getReferralTiers,
+    getReferralStats,
+    getReferrals,
     applyReferralCode,
     resetGameState
   } = useGameLogic();
@@ -74,6 +86,12 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     },
     collectEgg,
     startIncubation,
+    updateProfile,
+    getDonationTiers,
+    getCurrentTier,
+    getReferralTiers,
+    getReferralStats,
+    getReferrals,
     applyReferralCode,
     resetGameState
   };

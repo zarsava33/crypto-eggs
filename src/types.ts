@@ -50,12 +50,8 @@ export interface ShopItem {
   description: string;
   price: number;
   type: 'egg' | 'booster';
-  rarity?: string;
+  rarity: 'common' | 'rare' | 'epic' | 'legendary';
   image: string;
-  incubationDays?: number;
-  value?: number;
-  duration?: number;
-  multiplier?: number;
 }
 
 export interface CryptoWallet {
@@ -90,40 +86,29 @@ export interface DailyReward {
 }
 
 export interface GameState {
-  eggs: Egg[];
-  inventory: ShopItem[];
-  balance: number;
-  money: number;
   coins: number;
-  miningRig: MiningRig;
-  profile: Profile;
-  lastDailyReward: number | null;
-  currentStreak: number;
-  dailyRewards: DailyReward[];
-  activeBoosters: Booster[];
-  totalEggsCollected: number;
-  eggsHatched: number;
-  level: number;
-  experience: number;
-  currentEgg: {
+  eggs: {
+    id: string;
     type: string;
-    progress: number;
-    timeRemaining: number;
-  } | null;
+    status: EggStatus;
+    incubationStartTime?: string;
+    incubationEndTime?: string;
+  }[];
+  boosters: {
+    id: string;
+    type: string;
+    quantity: number;
+  }[];
+  profile: Profile;
+  inventory: {
+    eggs: string[];
+    boosters: string[];
+  };
   stats: {
-    totalEggs: number;
-    legendaryEggs: number;
-    totalPower: number;
-    averageLevel: number;
+    eggsHatched: number;
+    coinsEarned: number;
+    boostersUsed: number;
   };
-  referralStats: {
-    directReferrals: number;
-    indirectReferrals: number;
-    networkReferrals: number;
-    totalEarnings: number;
-    miningBonus: number;
-  };
-  referrals: Referral[];
 }
 
 export interface TelegramUser {
@@ -172,61 +157,48 @@ export interface Profile {
   avatar: string;
   level: number;
   experience: number;
-  email?: string;
-  bio?: string;
-  country?: string;
-  favoriteEgg?: string;
-  discord?: string;
-  twitter?: string;
-  totalDonated: number;
-  referralCode?: string;
-  referredBy?: string;
+  wallet: string;
+  createdAt: string;
+  lastLogin: string;
 }
 
 export interface DonationTier {
   id: string;
   name: string;
-  minAmount: number;
+  description: string;
+  requiredAmount: number;
   benefits: string[];
   icon: string;
-  color: string;
-  network: string;
-  logo: string;
 }
 
 export interface ReferralTier {
   id: string;
   name: string;
-  level: number;
-  minReferrals: number;
-  reward: {
+  description: string;
+  requiredReferrals: number;
+  rewards: {
     coins: number;
     eggs: number;
-    miningBonus: number;
+    boosters: number;
   };
-  color: string;
+  icon: string;
 }
 
 export interface ReferralStats {
   totalReferrals: number;
   activeReferrals: number;
   totalEarnings: number;
-  currentTier: ReferralTier;
-  indirectReferrals: number;
-  networkReferrals: number;
-  miningBonus: number;
+  currentTier: string;
+  nextTier: string | null;
+  progressToNextTier: number;
 }
 
 export interface Referral {
   id: string;
-  userId: string;
   username: string;
-  joinDate: string;
-  joinedAt: number;
+  joinedAt: string;
   status: 'active' | 'inactive';
-  isActive: boolean;
   earnings: number;
-  tier: number;
 }
 
 export interface MiningRig {
