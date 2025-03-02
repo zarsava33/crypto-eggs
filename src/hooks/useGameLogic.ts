@@ -3,47 +3,68 @@ import { GAME_CONFIG, TIME_BOOSTERS } from '../config/constants';
 import type { GameState, ShopItem, Egg, Booster, EggStatus, Profile, DonationTier, ReferralTier, ReferralStats, Referral } from '../types';
 import { DONATION_ADDRESSES } from '../constants';
 
-export function useGameLogic() {
-  const [gameState, setGameState] = useState<GameState>({
-    eggs: [],
-    inventory: [],
-    balance: 0,
-    money: 100,
-    coins: 0,
-    miningRig: {
-      level: 0,
-      hashRate: 0,
-    },
-    profile: {
-      username: '',
-      avatar: '',
-      level: 1,
-      experience: 0,
-      totalDonated: 0,
-    },
-    lastDailyReward: null,
-    currentStreak: 0,
-    dailyRewards: [],
-    activeBoosters: [],
-    totalEggsCollected: 0,
-    eggsHatched: 0,
+const initialGameState: GameState = {
+  eggs: [],
+  inventory: [],
+  balance: 0,
+  money: 100,
+  coins: 0,
+  miningRig: {
+    level: 0,
+    hashRate: 0,
+  },
+  profile: {
+    username: '',
+    avatar: '',
     level: 1,
     experience: 0,
-    currentEgg: null,
-    stats: {
-      totalEggs: 0,
-      legendaryEggs: 0,
-      totalPower: 0,
-      averageLevel: 0,
-    },
-    referralStats: {
-      directReferrals: 0,
-      indirectReferrals: 0,
-      networkReferrals: 0,
-      totalEarnings: 0,
-      miningBonus: 0,
-    },
-    referrals: [],
+    totalDonated: 0,
+  },
+  lastDailyReward: null,
+  currentStreak: 0,
+  dailyRewards: [],
+  activeBoosters: [],
+  totalEggsCollected: 0,
+  eggsHatched: 0,
+  level: 1,
+  experience: 0,
+  currentEgg: null,
+  stats: {
+    totalEggs: 0,
+    legendaryEggs: 0,
+    totalPower: 0,
+    averageLevel: 0,
+  },
+  referralStats: {
+    directReferrals: 0,
+    indirectReferrals: 0,
+    networkReferrals: 0,
+    totalEarnings: 0,
+    miningBonus: 0,
+  },
+  referrals: [],
+};
+
+export function useGameLogic() {
+  const [gameState, setGameState] = useState<GameState>(() => {
+    try {
+      const savedState = localStorage.getItem('eggGame');
+      if (savedState) {
+        const parsedState = JSON.parse(savedState);
+        // Asegurarse de que todas las propiedades necesarias existan
+        return {
+          ...initialGameState,
+          ...parsedState,
+          profile: {
+            ...initialGameState.profile,
+            ...parsedState.profile
+          }
+        };
+      }
+    } catch (error) {
+      console.error('Error loading game state:', error);
+    }
+    return initialGameState;
   });
 
   useEffect(() => {
@@ -72,7 +93,11 @@ export function useGameLogic() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('eggGame', JSON.stringify(gameState));
+    try {
+      localStorage.setItem('eggGame', JSON.stringify(gameState));
+    } catch (error) {
+      console.error('Error saving game state:', error);
+    }
   }, [gameState]);
 
   const buyItem = useCallback((item: ShopItem) => {
@@ -345,6 +370,15 @@ export function useGameLogic() {
     return Promise.resolve(true);
   }, []);
 
+  const resetGameState = useCallback(() => {
+    try {
+      localStorage.removeItem('eggGame');
+      setGameState(initialGameState);
+    } catch (error) {
+      console.error('Error resetting game state:', error);
+    }
+  }, []);
+
   return {
     gameState,
     buyItem,
@@ -361,6 +395,7 @@ export function useGameLogic() {
     getReferralTiers,
     getReferralStats,
     getReferrals,
-    applyReferralCode
+    applyReferralCode,
+    resetGameState
   };
 }

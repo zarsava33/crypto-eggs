@@ -21,6 +21,7 @@ interface GameContextType {
     getReferralStats: () => ReferralStats;
     getReferrals: () => Referral[];
     applyReferralCode: (code: string) => Promise<boolean>;
+    resetGameState: () => void;
   };
 }
 
@@ -43,7 +44,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
     getReferralTiers,
     getReferralStats,
     getReferrals,
-    applyReferralCode
+    applyReferralCode,
+    resetGameState
   } = useGameLogic();
 
   const value: GameContextType = {
@@ -64,7 +66,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
       getReferralTiers,
       getReferralStats,
       getReferrals,
-      applyReferralCode
+      applyReferralCode,
+      resetGameState
     }
   };
 
