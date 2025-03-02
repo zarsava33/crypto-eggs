@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react()],
   base: '/crypto-eggs/', // Base path for GitHub Pages
   optimizeDeps: {
-    exclude: ['lucide-react'],
+    exclude: ['lucide-react', '@prisma/client'],
   },
   build: {
     outDir: 'dist',
@@ -15,10 +15,10 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom'],
-          database: ['@prisma/client']
+          vendor: ['react', 'react-dom']
         }
-      }
+      },
+      external: ['@prisma/client']
     },
     chunkSizeWarningLimit: 600, // Set chunk size warning limit
   },
