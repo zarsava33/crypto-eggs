@@ -1,6 +1,7 @@
 import { useGame } from '../contexts/GameContext';
 import { useError } from '../contexts/ErrorContext';
 import { motion } from 'framer-motion';
+import type { Variants } from 'framer-motion';
 
 const shopItems = [
   {
@@ -59,11 +60,13 @@ const shopItems = [
     multiplier: 3,
     image: '⚡⚡'
   }
-];
+] as const;
 
-const container = {
-  hidden: { opacity: 0 },
-  show: {
+const containerVariants: Variants = {
+  hidden: { 
+    opacity: 0 
+  },
+  visible: {
     opacity: 1,
     transition: {
       staggerChildren: 0.1
@@ -71,16 +74,22 @@ const container = {
   }
 };
 
-const item = {
-  hidden: { y: 20, opacity: 0 },
-  show: { y: 0, opacity: 1 }
+const itemVariants: Variants = {
+  hidden: { 
+    y: 20, 
+    opacity: 0 
+  },
+  visible: { 
+    y: 0, 
+    opacity: 1 
+  }
 };
 
 export function Shop() {
   const { state, actions } = useGame();
   const { reportError } = useError();
 
-  const handlePurchase = async (item: typeof shopItems[0]) => {
+  const handlePurchase = async (item: typeof shopItems[number]) => {
     try {
       if (state.money < item.price) {
         throw new Error('No tienes suficientes monedas para esta compra');
@@ -115,14 +124,14 @@ export function Shop() {
 
       <motion.div 
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
-        variants={container}
+        variants={containerVariants}
         initial="hidden"
-        animate="show"
+        animate="visible"
       >
         {shopItems.map((item) => (
           <motion.div
             key={item.id}
-            variants={item}
+            variants={itemVariants}
             whileHover={{ scale: 1.02 }}
             className="glass-card p-6 flex flex-col justify-between"
           >
