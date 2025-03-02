@@ -1,0 +1,44 @@
+{
+  "game": {
+    "title": "🥚 Juego de Incubadora de Huevos",
+    "wallet": {
+      "connect": "Conectar Billetera Telegram",
+      "disconnect": "Desconectar"
+    }
+  },
+  "shop": {
+    "title": "Tienda de Huevos",
+    "eggs": {
+      "basic": {
+        "name": "Huevo Básico",
+        "description": "Un huevo común que produce retornos modestos."
+      },
+      "rare": {
+        "name": "Huevo Raro",
+        "description": "Eclosiona más rápido y produce mejores retornos."
+      },
+      "legendary": {
+        "name": "Huevo Legendario",
+        "description": "Huevo premium con retornos excepcionales."
+      }
+    },
+    "cost": "Costo: ${{cost}}",
+    "value": "Valor al eclosionar: ${{value}}",
+    "incubation": "Incubación: {{days}} días",
+    "buyButton": "Comprar Huevo"
+  },
+  "egg": {
+    "status": {
+      "hatched": "¡Eclosionado!",
+      "incubating": "{{days}} días restantes"
+    },
+    "value": "Valor: ${{value}}",
+    "collect": "Recolectar"
+  },
+  "leaderboard": {
+    "title": "Mejores Coleccionistas",
+    "you": "Tú",
+    "player": "Jugador {{address}}",
+    "stats": "{{eggs}} huevos"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "game": {
+    "title": "🥚 Egg Incubator Game",
+    "wallet": {
+      "connect": "Connect Telegram Wallet",
+      "disconnect": "Disconnect"
+    }
+  },
+  "shop": {
+    "title": "Egg Shop",
+    "eggs": {
+      "basic": {
+        "name": "Basic Egg",
+        "description": "A common egg that produces modest returns."
+      },
+      "rare": {
+        "name": "Rare Egg",
+        "description": "Hatches faster and produces better returns."
+      },
+      "legendary": {
+        "name": "Legendary Egg",
+        "description": "Premium egg with exceptional returns."
+      }
+    },
+    "cost": "Cost: ${{cost}}",
+    "value": "Value when hatched: ${{value}}",
+    "incubation": "Incubation: {{days}} days",
+    "buyButton": "Buy Egg"
+  },
+  "egg": {
+    "status": {
+      "hatched": "Hatched!",
+      "incubating": "{{days}} days left"
+    },
+    "value": "Value: ${{value}}",
+    "collect": "Collect"
+  },
+  "leaderboard": {
+    "title": "Top Egg Collectors",
+    "you": "You",
+    "player": "Player {{address}}",
+    "stats": "{{eggs}} eggs"
+  }
+}
