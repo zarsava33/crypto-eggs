@@ -15,8 +15,9 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom']
-        }
+          vendor: ['react', 'react-dom'],
+          ui: ['@headlessui/react', '@heroicons/react', 'tailwindcss'],
+        },
       },
       external: ['@prisma/client']
     },

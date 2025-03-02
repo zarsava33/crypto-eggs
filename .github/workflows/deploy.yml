@@ -10,6 +10,15 @@ permissions:
   pages: write
   id-token: write
 
+env:
+  VITE_APP_TITLE: "Crypto Eggs Game"
+  VITE_APP_DESCRIPTION: "Un juego de minería y crianza de huevos crypto"
+  VITE_APP_VERSION: "1.0.0"
+  VITE_BTC_ADDRESS: "bc1qq4v73jd2kg7jcu7zu93haskxfe36x7ksu40glq"
+  VITE_USDT_ADDRESS: "TETdBsgM5BdWCM9W5RUiUnXGH3jUyhVy5M"
+  VITE_API_URL: "https://api.cryptoeggs.com"
+  VITE_WEBSOCKET_URL: "wss://ws.cryptoeggs.com"
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -17,21 +26,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: Set up Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
+          cache: 'npm'
       
       - name: Install dependencies
         run: |
-          npm install
-          npm install --save-dev prisma@5.10.2
-          npm install --save-dev typescript@5.2.2
-          npm install --save-dev @types/node@20.11.24
+          npm ci
+          npm install --save-dev typescript@5.2.2 @types/node@20.11.24
           npm install --save-dev tailwindcss@3.4.1 autoprefixer@10.4.18 postcss@8.4.35
-      
-      - name: List installed packages
-        run: npm list --depth=0
+          npm install --save-dev @vitejs/plugin-react@4.2.1
+          npm install --save-dev prisma@5.10.2
       
       - name: Check TypeScript
         run: |
@@ -43,24 +50,17 @@ jobs:
           echo "Generating Prisma Client..."
           npx prisma generate --debug
       
-      - name: Build with verbose logging
+      - name: Build
         run: |
           echo "Node version:"
           node --version
           echo "NPM version:"
           npm --version
           echo "Starting build process..."
-          npm run build --verbose
+          npm run build
         env:
-          NODE_ENV: production
           DEBUG: '*'
-          VITE_APP_TITLE: "Crypto Eggs Game"
-          VITE_APP_DESCRIPTION: "Un juego de minería y crianza de huevos crypto"
-          VITE_APP_VERSION: "1.0.0"
-          VITE_BTC_ADDRESS: "bc1qq4v73jd2kg7jcu7zu93haskxfe36x7ksu40glq"
-          VITE_USDT_ADDRESS: "TETdBsgM5BdWCM9W5RUiUnXGH3jUyhVy5M"
-          VITE_API_URL: "https://api.cryptoeggs.com"
-          VITE_WEBSOCKET_URL: "wss://ws.cryptoeggs.com"
+          NODE_ENV: production
       
       - name: List build output
         if: always()
