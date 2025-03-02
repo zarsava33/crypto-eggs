@@ -8,21 +8,19 @@ import { GameProvider } from './contexts/GameContext';
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      <GameProvider>
-        <Router>
-          <MainLayout>
-            <Routes>
-              <Route path="/" element={<Farm />} />
-              <Route path="/farm" element={<Farm />} />
-              <Route path="/shop" element={<Shop />} />
-              <Route path="/inventory" element={<Inventory />} />
-              <Route path="/profile" element={<ProfileSection />} />
-            </Routes>
-          </MainLayout>
-        </Router>
-      </GameProvider>
-    </div>
+    <GameProvider>
+      <Router>
+        <MainLayout>
+          <Routes>
+            <Route path="/" element={<Farm />} />
+            <Route path="/farm" element={<Farm />} />
+            <Route path="/shop" element={<Shop />} />
+            <Route path="/inventory" element={<Inventory />} />
+            <Route path="/profile" element={<ProfileSection />} />
+          </Routes>
+        </MainLayout>
+      </Router>
+    </GameProvider>
   );
 }
 

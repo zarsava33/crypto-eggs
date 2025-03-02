@@ -2,13 +2,17 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
   pages: write
   id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -17,11 +21,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
       
       - name: Install dependencies
         run: npm ci
@@ -29,26 +36,21 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          VITE_APP_TITLE: "Crypto Eggs Game"
-          VITE_APP_DESCRIPTION: "Un juego de minería y crianza de huevos crypto"
-          VITE_APP_VERSION: "1.0.0"
-          VITE_BTC_ADDRESS: "bc1qq4v73jd2kg7jcu7zu93haskxfe36x7ksu40glq"
-          VITE_USDT_ADDRESS: "TETdBsgM5BdWCM9W5RUiUnXGH3jUyhVy5M"
-      
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
+          VITE_APP_TITLE: "Crypto Eggs"
+          VITE_APP_DESCRIPTION: "Farm crypto eggs and earn rewards"
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+          path: dist
 
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
     needs: build
+    runs-on: ubuntu-latest
+    name: Deploy
     steps:
       - name: Deploy to GitHub Pages
         id: deployment

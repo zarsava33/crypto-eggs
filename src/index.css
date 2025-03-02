@@ -2,100 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  color-scheme: dark;
-}
-
-html, body {
-  background-color: #0a0a0a;
-  color: #ffffff;
-  min-height: 100vh;
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
-}
-
-#root {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400;
-}
-
-/* Estilos para scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(31, 41, 55, 0.5);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(139, 92, 246, 0.5);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(139, 92, 246, 0.7);
-}
-
-/* Animaciones */
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
-.animate-pulse-slow {
-  animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* Glassmorphism */
-.glass-card {
-  @apply bg-gray-800/50 backdrop-blur-sm border border-gray-700/50;
-}
-
-/* Botones */
-.game-button {
-  @apply px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg text-white font-medium 
-         hover:opacity-90 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 
-         focus:ring-purple-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed 
-         disabled:hover:scale-100;
-}
-
-.game-button-small {
-  @apply px-3 py-1.5 bg-gray-700 rounded-lg text-sm font-medium hover:bg-gray-600 
-         transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50;
-}
-
-/* Inputs */
-.game-input {
-  @apply bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 
-         focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300;
-}
-
 @layer base {
-  html {
-    @apply h-full antialiased;
+  :root {
+    color-scheme: dark;
   }
 
-  body {
-    font-feature-settings: "rlig" 1, "calt" 1;
+  html, 
+  body, 
+  #root {
+    @apply min-h-screen bg-gray-900 text-white m-0 p-0;
   }
 }
 
 @layer components {
   .glass-card {
-    @apply bg-white/5 backdrop-blur-lg border border-white/10 rounded-lg;
+    @apply bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl;
   }
 
   .gradient-text {
@@ -104,8 +25,18 @@ html, body {
 
   .game-button {
     @apply px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium 
-    hover:from-purple-600 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed 
-    transition-all duration-300 ease-in-out;
+           hover:from-purple-600 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed 
+           transition-all duration-300 ease-in-out;
+  }
+
+  .game-button-small {
+    @apply px-3 py-1.5 bg-gray-700 rounded-lg text-sm font-medium hover:bg-gray-600 
+           transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50;
+  }
+
+  .game-input {
+    @apply bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 
+           focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent;
   }
 }
 
@@ -121,33 +52,28 @@ html, body {
   .animate-pulse-slow {
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
-
-  .animate-shimmer {
-    animation: shimmer 2s linear infinite;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.08),
-      transparent
-    );
-    background-size: 200% 100%;
-  }
 }
 
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+  @apply w-2;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-800;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-purple-500/50 rounded-full hover:bg-purple-500;
+}
+
+/* Animaciones */
 @keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
-@keyframes shimmer {
-  0% {
-    background-position: -1000px 0;
-  }
-  100% {
-    background-position: 1000px 0;
-  }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
