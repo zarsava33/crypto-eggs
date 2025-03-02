@@ -10,15 +10,6 @@ permissions:
   pages: write
   id-token: write
 
-env:
-  VITE_APP_TITLE: "Crypto Eggs Game"
-  VITE_APP_DESCRIPTION: "Un juego de minería y crianza de huevos crypto"
-  VITE_APP_VERSION: "1.0.0"
-  VITE_BTC_ADDRESS: "bc1qq4v73jd2kg7jcu7zu93haskxfe36x7ksu40glq"
-  VITE_USDT_ADDRESS: "TETdBsgM5BdWCM9W5RUiUnXGH3jUyhVy5M"
-  VITE_API_URL: "https://api.cryptoeggs.com"
-  VITE_WEBSOCKET_URL: "wss://ws.cryptoeggs.com"
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -33,42 +24,16 @@ jobs:
           cache: 'npm'
       
       - name: Install dependencies
-        run: |
-          npm ci
-          npm install --save-dev typescript@5.2.2 @types/node@20.11.24
-          npm install --save-dev tailwindcss@3.4.1 autoprefixer@10.4.18 postcss@8.4.35
-          npm install --save-dev @vitejs/plugin-react@4.2.1
-          npm install --save-dev prisma@5.10.2
-      
-      - name: Check TypeScript
-        run: |
-          echo "Checking TypeScript compilation..."
-          npx tsc --noEmit
-      
-      - name: Generate Prisma Client
-        run: |
-          echo "Generating Prisma Client..."
-          npx prisma generate --debug
+        run: npm ci
       
       - name: Build
-        run: |
-          echo "Node version:"
-          node --version
-          echo "NPM version:"
-          npm --version
-          echo "Starting build process..."
-          npm run build
+        run: npm run build
         env:
-          DEBUG: '*'
-          NODE_ENV: production
-      
-      - name: List build output
-        if: always()
-        run: |
-          echo "Current directory contents:"
-          ls -la
-          echo "Dist directory contents (if exists):"
-          ls -la dist || echo "dist directory not found"
+          VITE_APP_TITLE: "Crypto Eggs Game"
+          VITE_APP_DESCRIPTION: "Un juego de minería y crianza de huevos crypto"
+          VITE_APP_VERSION: "1.0.0"
+          VITE_BTC_ADDRESS: "bc1qq4v73jd2kg7jcu7zu93haskxfe36x7ksu40glq"
+          VITE_USDT_ADDRESS: "TETdBsgM5BdWCM9W5RUiUnXGH3jUyhVy5M"
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
