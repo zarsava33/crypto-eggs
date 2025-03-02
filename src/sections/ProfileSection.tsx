@@ -1,55 +1,43 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { User, Edit2, Save, X, Gift, Copy, ExternalLink, Globe, Heart, Users, Share2 } from 'lucide-react';
 import { useGame } from '../contexts/GameContext';
+import type { Profile } from '../types';
 
 export function ProfileSection() {
-  const {
-    state,
-    updateProfile,
-    getDonationAddresses,
-    getDonationTiers,
-    getCurrentTier,
-    getReferralTiers,
-    getReferralStats,
-    getReferrals,
-    applyReferralCode
-  } = useGame();
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedProfile, setEditedProfile] = useState(state.profile);
+  const { state, actions } = useGame();
+  const [editMode, setEditMode] = useState(false);
+  const [editedProfile, setEditedProfile] = useState<Profile>(state.profile);
   const [referralCode, setReferralCode] = useState('');
 
-  // Actualizar el estado editado cuando cambie el perfil
-  useEffect(() => {
-    setEditedProfile(state.profile);
-  }, [state.profile]);
-
-  const currentTier = getCurrentTier();
-
-  const handleSave = () => {
-    updateProfile(editedProfile);
-    setIsEditing(false);
+  const handleSaveProfile = () => {
+    actions.updateProfile(editedProfile);
+    setEditMode(false);
   };
 
-  const handleCancel = () => {
-    setEditedProfile(state.profile);
-    setIsEditing(false);
+  const handleApplyReferralCode = async () => {
+    if (referralCode) {
+      const success = await actions.applyReferralCode(referralCode);
+      if (success) {
+        setReferralCode('');
+      }
+    }
   };
 
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      alert('¡Dirección copiada al portapapeles!');
+      alert('¡Copiado al portapapeles!');
     } catch (err) {
       console.error('Error al copiar:', err);
     }
   };
 
-  const handleApplyReferralCode = () => {
-    if (referralCode.trim()) {
-      applyReferralCode(referralCode.trim());
-      setReferralCode('');
-    }
-  };
+  const donationTiers = actions.getDonationTiers();
+  const currentTier = actions.getCurrentTier();
+  const referralTiers = actions.getReferralTiers();
+  const referralStats = actions.getReferralStats();
+  const referrals = actions.getReferrals();
+  const donationAddresses = actions.getDonationAddresses();
 
   if (!state || !state.profile) {
     return <div className="text-center p-8">Cargando perfil...</div>;
@@ -64,10 +52,10 @@ export function ProfileSection() {
             <h2 className="text-2xl font-bold gradient-text">Tu Perfil</h2>
             <span className={`text-2xl ${currentTier.color}`}>{currentTier.icon}</span>
           </div>
-          {!isEditing ? (
+          {!editMode ? (
             <button
               className="game-button-small"
-              onClick={() => setIsEditing(true)}
+              onClick={() => setEditMode(true)}
             >
               <Edit2 size={16} className="mr-1" />
               Editar
@@ -76,14 +64,14 @@ export function ProfileSection() {
             <div className="flex gap-2">
               <button
                 className="game-button-small text-green-400"
-                onClick={handleSave}
+                onClick={handleSaveProfile}
               >
                 <Save size={16} className="mr-1" />
                 Guardar
               </button>
               <button
                 className="game-button-small text-red-400"
-                onClick={handleCancel}
+                onClick={() => setEditMode(false)}
               >
                 <X size={16} className="mr-1" />
                 Cancelar
@@ -114,7 +102,7 @@ export function ProfileSection() {
           </div>
 
           <div className="flex-1 space-y-4">
-            {isEditing ? (
+            {editMode ? (
               <>
                 <div className="space-y-2">
                   <label className="text-sm text-gray-400">Nombre de Usuario</label>
@@ -258,7 +246,7 @@ export function ProfileSection() {
                   Siguiente nivel en:
                 </p>
                 <p className="text-purple-400">
-                  ${(getDonationTiers().find(t => t.minAmount > state.profile.totalDonated)?.minAmount || 0) - state.profile.totalDonated}
+                  ${(donationTiers[donationTiers.length - 1].minAmount - state.profile.totalDonated).toFixed(2)}
                 </p>
               </div>
             )}
@@ -277,7 +265,7 @@ export function ProfileSection() {
           </div>
 
           <div className="grid grid-cols-4 gap-2">
-            {getDonationTiers().slice(1).map((tier) => (
+            {donationTiers.map((tier) => (
               <div
                 key={tier.name}
                 className={`glass-card rounded-xl p-3 text-center ${
@@ -327,31 +315,19 @@ export function ProfileSection() {
           ¡Ayúdanos a seguir mejorando el juego! Puedes hacer una donación usando cualquiera de estas criptomonedas:
         </p>
 
-        <div className="grid grid-cols-2 gap-4">
-          {getDonationAddresses().map((donation) => (
-            <div key={donation.network} className="glass-card rounded-xl p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <img
-                    src={donation.logo}
-                    alt={donation.network}
-                    className="w-8 h-8"
-                  />
-                  <div>
-                    <h3 className="font-medium text-white">{donation.network}</h3>
-                    <p className="text-sm text-gray-400 font-mono truncate max-w-[200px]">
-                      {donation.address}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  className="game-button-small"
-                  onClick={() => copyToClipboard(donation.address)}
-                >
-                  <Copy size={16} className="mr-1" />
-                  Copiar
-                </button>
-              </div>
+        <div className="space-y-4">
+          {donationAddresses.map(({ symbol, address }) => (
+            <div key={symbol} className="flex items-center space-x-2">
+              <span className="text-sm text-gray-400">{symbol}:</span>
+              <code className="flex-1 bg-gray-700 rounded px-2 py-1 text-sm">
+                {address}
+              </code>
+              <button
+                onClick={() => copyToClipboard(address)}
+                className="px-3 py-1 bg-gray-700 rounded text-sm hover:bg-gray-600 transition-colors"
+              >
+                Copiar
+              </button>
             </div>
           ))}
         </div>
@@ -384,25 +360,25 @@ export function ProfileSection() {
               <div className="glass-card rounded-xl p-4">
                 <h4 className="text-sm text-gray-400">Referidos Directos</h4>
                 <p className="text-2xl font-bold text-green-400">
-                  {state.referralStats.directReferrals}
+                  {referralStats.totalReferrals}
                 </p>
               </div>
               <div className="glass-card rounded-xl p-4">
                 <h4 className="text-sm text-gray-400">Referidos Indirectos</h4>
                 <p className="text-2xl font-bold text-blue-400">
-                  {state.referralStats.indirectReferrals}
+                  {referralStats.indirectReferrals}
                 </p>
               </div>
               <div className="glass-card rounded-xl p-4">
                 <h4 className="text-sm text-gray-400">Red Total</h4>
                 <p className="text-2xl font-bold text-purple-400">
-                  {state.referralStats.networkReferrals}
+                  {referralStats.networkReferrals}
                 </p>
               </div>
               <div className="glass-card rounded-xl p-4">
                 <h4 className="text-sm text-gray-400">Ganancias Totales</h4>
                 <p className="text-2xl font-bold gradient-text">
-                  {state.referralStats.totalEarnings}
+                  ${referralStats.totalEarnings.toFixed(2)}
                 </p>
               </div>
             </div>
@@ -411,7 +387,7 @@ export function ProfileSection() {
             <div className="glass-card rounded-xl p-4">
               <h4 className="text-sm text-gray-400">Bonus de Minería por Referidos</h4>
               <p className="text-2xl font-bold text-yellow-400">
-                +{(state.referralStats.miningBonus * 100).toFixed(1)}%
+                +{(referralStats.miningBonus * 100).toFixed(1)}%
               </p>
             </div>
           </div>
@@ -471,7 +447,7 @@ export function ProfileSection() {
         <div className="mt-6">
           <h3 className="text-lg font-semibold text-gray-300 mb-4">Recompensas por Nivel</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {getReferralTiers().map((tier) => (
+            {referralTiers.map((tier) => (
               <div key={tier.level} className="glass-card rounded-xl p-4">
                 <h4 className={`text-lg font-bold ${tier.color} mb-2`}>
                   Nivel {tier.level}: {tier.name}
@@ -500,13 +476,13 @@ export function ProfileSection() {
         </div>
 
         {/* Lista de Referidos */}
-        {state.referrals.length > 0 && (
+        {referrals.length > 0 && (
           <div className="mt-6">
             <h3 className="text-lg font-semibold text-gray-300 mb-4">Tus Referidos</h3>
             <div className="space-y-2">
-              {state.referrals.map((referral) => (
+              {referrals.map((referral) => (
                 <div
-                  key={referral.userId}
+                  key={referral.id}
                   className="glass-card rounded-xl p-4 flex items-center justify-between"
                 >
                   <div className="flex items-center gap-3">

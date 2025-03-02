@@ -1,6 +1,6 @@
 import { createContext, useContext, ReactNode } from 'react';
 import { useGameLogic } from '../hooks/useGameLogic';
-import type { GameState, ShopItem } from '../types';
+import type { GameState, ShopItem, Profile, DonationTier, ReferralTier, ReferralStats, Referral } from '../types';
 
 interface GameContextType {
   state: GameState;
@@ -13,13 +13,38 @@ interface GameContextType {
     upgradeMiningRig: () => void;
     claimDailyReward: () => void;
     canClaimDailyReward: boolean;
+    updateProfile: (profile: Partial<Profile>) => void;
+    getDonationAddresses: () => { symbol: string; address: string }[];
+    getDonationTiers: () => DonationTier[];
+    getCurrentTier: () => DonationTier;
+    getReferralTiers: () => ReferralTier[];
+    getReferralStats: () => ReferralStats;
+    getReferrals: () => Referral[];
+    applyReferralCode: (code: string) => Promise<boolean>;
   };
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export function GameProvider({ children }: { children: ReactNode }) {
-  const { gameState, buyItem, collectEgg, startIncubation, buyMiningRig, upgradeMiningRig, claimDailyReward, canClaimDailyReward } = useGameLogic();
+  const {
+    gameState,
+    buyItem,
+    collectEgg,
+    startIncubation,
+    buyMiningRig,
+    upgradeMiningRig,
+    claimDailyReward,
+    canClaimDailyReward,
+    updateProfile,
+    getDonationAddresses,
+    getDonationTiers,
+    getCurrentTier,
+    getReferralTiers,
+    getReferralStats,
+    getReferrals,
+    applyReferralCode
+  } = useGameLogic();
 
   const value: GameContextType = {
     state: gameState,
@@ -31,7 +56,15 @@ export function GameProvider({ children }: { children: ReactNode }) {
       buyMiningRig,
       upgradeMiningRig,
       claimDailyReward,
-      canClaimDailyReward
+      canClaimDailyReward,
+      updateProfile,
+      getDonationAddresses,
+      getDonationTiers,
+      getCurrentTier,
+      getReferralTiers,
+      getReferralStats,
+      getReferrals,
+      applyReferralCode
     }
   };
 

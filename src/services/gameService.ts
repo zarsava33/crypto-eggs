@@ -78,47 +78,38 @@ export function createNewBooster(type: 'mining' | 'hatching' | 'experience', dur
 }
 
 export function calculateEggProgress(egg: Egg): number {
-  if (!egg.incubationStartTime || egg.status === 'hatched') return 100;
-  
-  const elapsed = Date.now() - egg.incubationStartTime;
+  if (egg.status !== 'incubating') return 0;
+  const now = Date.now();
+  const elapsed = now - egg.incubationStartTime;
   return Math.min(100, (elapsed / egg.incubationTimeRequired) * 100);
 }
 
-export function updateGameState(eggs: Egg[]): GameState {
-  const now = Date.now();
+export function updateEggStatus(egg: Egg): Egg {
+  if (egg.status !== 'incubating') return egg;
 
-  // Actualizar estado de los huevos
-  const updatedEggs = eggs.map(egg => {
-    if (egg.status === 'incubating' && now >= egg.incubationEndTime) {
-      return { ...egg, status: 'ready' as EggStatus };
-    }
-    return egg;
-  });
+  const progress = calculateEggProgress(egg);
+  if (progress >= 100) {
+    return { ...egg, status: 'ready' };
+  }
+  return egg;
+}
 
-  // Calcular estadísticas
-  const stats = {
-    totalEggs: updatedEggs.length,
-    legendaryEggs: updatedEggs.filter(egg => egg.rarity === 'legendary').length,
-    totalPower: updatedEggs.reduce((sum, egg) => sum + egg.power, 0),
-    averageLevel: updatedEggs.reduce((sum, egg) => sum + egg.level, 0) / updatedEggs.length || 0
-  };
+export function updateGameState(state: GameState): GameState {
+  const updatedEggs = state.eggs.map(updateEggStatus);
+  const stats = calculateStats(updatedEggs);
 
   return {
-    money: 0,
+    ...state,
     eggs: updatedEggs,
-    activeBoosters: [],
-    totalEggsCollected: 0,
-    depositHistory: [],
-    connectedWallets: [],
     stats
   };
 }
 
-function calculateStats(eggs: Egg[]): GameState['stats'] {
+function calculateStats(eggs: Egg[]) {
   const totalEggs = eggs.length;
   const legendaryEggs = eggs.filter(egg => egg.rarity === 'legendary').length;
   const totalPower = eggs.reduce((sum, egg) => sum + egg.power, 0);
-  const averageLevel = totalEggs > 0 
+  const averageLevel = totalEggs
     ? Math.round(eggs.reduce((sum, egg) => sum + egg.level, 0) / totalEggs)
     : 0;
 
@@ -126,6 +117,50 @@ function calculateStats(eggs: Egg[]): GameState['stats'] {
     totalEggs,
     legendaryEggs,
     totalPower,
-    averageLevel,
+    averageLevel
+  };
+}
+
+export function initializeGameState(): GameState {
+  return {
+    eggs: [],
+    inventory: [],
+    balance: 0,
+    money: 0,
+    coins: 0,
+    miningRig: {
+      level: 0,
+      hashRate: 0,
+    },
+    profile: {
+      username: '',
+      avatar: '',
+      level: 1,
+      experience: 0,
+      totalDonated: 0,
+    },
+    lastDailyReward: null,
+    currentStreak: 0,
+    dailyRewards: [],
+    activeBoosters: [],
+    totalEggsCollected: 0,
+    eggsHatched: 0,
+    level: 1,
+    experience: 0,
+    currentEgg: null,
+    stats: {
+      totalEggs: 0,
+      legendaryEggs: 0,
+      totalPower: 0,
+      averageLevel: 0,
+    },
+    referralStats: {
+      directReferrals: 0,
+      indirectReferrals: 0,
+      networkReferrals: 0,
+      totalEarnings: 0,
+      miningBonus: 0,
+    },
+    referrals: [],
   };
 } 

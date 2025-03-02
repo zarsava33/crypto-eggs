@@ -1,7 +1,7 @@
 export type CryptoCurrencySymbol = 'BTC' | 'USDT';
 
 export type Rarity = 'common' | 'rare' | 'epic' | 'legendary';
-export type EggStatus = 'idle' | 'incubating' | 'ready' | 'collected';
+export type EggStatus = 'idle' | 'incubating' | 'ready' | 'hatched';
 export type Section = 'farm' | 'shop' | 'inventory' | 'friends' | 'profile';
 
 export interface CryptoCurrency {
@@ -21,7 +21,7 @@ export interface CryptoInfo {
 export interface Egg {
   id: string;
   type: string;
-  rarity: Rarity;
+  rarity: string;
   level: number;
   power: number;
   image: string;
@@ -36,9 +36,9 @@ export interface Egg {
 
 export interface Booster {
   id: string;
-  type: 'mining' | 'hatching' | 'experience';
-  multiplier: number;
+  type: string;
   duration: number;
+  multiplier: number;
   active: boolean;
   startTime: number;
   timeRemaining?: number;
@@ -50,12 +50,12 @@ export interface ShopItem {
   description: string;
   price: number;
   type: 'egg' | 'booster';
-  rarity?: Rarity;
+  rarity?: string;
   image: string;
   incubationDays?: number;
   value?: number;
-  multiplier?: number;
   duration?: number;
+  multiplier?: number;
 }
 
 export interface CryptoWallet {
@@ -90,9 +90,16 @@ export interface DailyReward {
 }
 
 export interface GameState {
+  eggs: Egg[];
+  inventory: ShopItem[];
+  balance: number;
   money: number;
   coins: number;
-  eggs: Egg[];
+  miningRig: MiningRig;
+  profile: Profile;
+  lastDailyReward: number | null;
+  currentStreak: number;
+  dailyRewards: DailyReward[];
   activeBoosters: Booster[];
   totalEggsCollected: number;
   eggsHatched: number;
@@ -103,17 +110,20 @@ export interface GameState {
     progress: number;
     timeRemaining: number;
   } | null;
-  depositHistory: Transaction[];
-  connectedWallets: CryptoWallet[];
   stats: {
     totalEggs: number;
     legendaryEggs: number;
     totalPower: number;
     averageLevel: number;
   };
-  currentStreak: number;
-  dailyRewards: DailyReward[];
-  lastDailyReward: number | null;
+  referralStats: {
+    directReferrals: number;
+    indirectReferrals: number;
+    networkReferrals: number;
+    totalEarnings: number;
+    miningBonus: number;
+  };
+  referrals: Referral[];
 }
 
 export interface TelegramUser {
@@ -155,6 +165,73 @@ export interface TelegramWebApp {
   };
   ready: () => void;
   expand: () => void;
+}
+
+export interface Profile {
+  username: string;
+  avatar: string;
+  level: number;
+  experience: number;
+  email?: string;
+  bio?: string;
+  country?: string;
+  favoriteEgg?: string;
+  discord?: string;
+  twitter?: string;
+  totalDonated: number;
+  referralCode?: string;
+  referredBy?: string;
+}
+
+export interface DonationTier {
+  id: string;
+  name: string;
+  minAmount: number;
+  benefits: string[];
+  icon: string;
+  color: string;
+  network: string;
+  logo: string;
+}
+
+export interface ReferralTier {
+  id: string;
+  name: string;
+  level: number;
+  minReferrals: number;
+  reward: {
+    coins: number;
+    eggs: number;
+    miningBonus: number;
+  };
+  color: string;
+}
+
+export interface ReferralStats {
+  totalReferrals: number;
+  activeReferrals: number;
+  totalEarnings: number;
+  currentTier: ReferralTier;
+  indirectReferrals: number;
+  networkReferrals: number;
+  miningBonus: number;
+}
+
+export interface Referral {
+  id: string;
+  userId: string;
+  username: string;
+  joinDate: string;
+  joinedAt: number;
+  status: 'active' | 'inactive';
+  isActive: boolean;
+  earnings: number;
+  tier: number;
+}
+
+export interface MiningRig {
+  level: number;
+  hashRate: number;
 }
 
 declare global {
