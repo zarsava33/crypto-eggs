@@ -15,4 +15,8 @@ export function MainLayout({ children }: MainLayoutProps) {
             {children}
           </div>
         </main>
+      </div>
+    </div>
+  );
+}
  
