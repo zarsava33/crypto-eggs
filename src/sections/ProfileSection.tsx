@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { User, Edit2, Save, X, Gift, Copy, ExternalLink, Globe, Heart, Users, Share2 } from 'lucide-react';
 import { useGame } from '../contexts/GameContext';
 import type { Profile, DonationTier, ReferralTier, ReferralStats, Referral } from '../types';
 import { motion } from 'framer-motion';
@@ -28,25 +27,12 @@ export function ProfileSection() {
     setEditMode(false);
   };
 
-  const handleApplyReferralCode = async () => {
+  const handleApplyReferralCode = () => {
     if (referralCode) {
-      const success = await actions.applyReferralCode(referralCode);
-      if (success) {
-        setReferralCode('');
-      }
+      actions.applyReferralCode(referralCode);
+      setReferralCode('');
     }
   };
-
-  const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      alert('¡Copiado al portapapeles!');
-    } catch (err) {
-      console.error('Error al copiar:', err);
-    }
-  };
-
-  const donationAddresses = actions.getDonationAddresses();
 
   if (!state || !state.profile) {
     return <div className="text-center p-8">Cargando perfil...</div>;

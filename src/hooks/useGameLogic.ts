@@ -1,48 +1,28 @@
 import { useState, useEffect, useCallback } from 'react';
-import { GAME_CONFIG, TIME_BOOSTERS } from '../config/constants';
-import type { GameState, ShopItem, Egg, Booster, EggStatus, Profile, DonationTier, ReferralTier, ReferralStats, Referral } from '../types';
-import { DONATION_ADDRESSES } from '../constants';
+import type { GameState, ShopItem, Profile, DonationTier, ReferralTier, ReferralStats, Referral, EggStatus } from '../types';
 
-const initialGameState: GameState = {
+const initialState: GameState = {
+  coins: 1000,
   eggs: [],
-  inventory: [],
-  balance: 0,
-  money: 100,
-  coins: 0,
-  miningRig: {
-    level: 0,
-    hashRate: 0,
-  },
+  boosters: [],
   profile: {
     username: '',
     avatar: '',
     level: 1,
     experience: 0,
-    totalDonated: 0,
+    wallet: '',
+    createdAt: new Date().toISOString(),
+    lastLogin: new Date().toISOString()
   },
-  lastDailyReward: null,
-  currentStreak: 0,
-  dailyRewards: [],
-  activeBoosters: [],
-  totalEggsCollected: 0,
-  eggsHatched: 0,
-  level: 1,
-  experience: 0,
-  currentEgg: null,
+  inventory: {
+    eggs: [],
+    boosters: []
+  },
   stats: {
-    totalEggs: 0,
-    legendaryEggs: 0,
-    totalPower: 0,
-    averageLevel: 0,
-  },
-  referralStats: {
-    directReferrals: 0,
-    indirectReferrals: 0,
-    networkReferrals: 0,
-    totalEarnings: 0,
-    miningBonus: 0,
-  },
-  referrals: [],
+    eggsHatched: 0,
+    coinsEarned: 0,
+    boostersUsed: 0
+  }
 };
 
 export function useGameLogic() {
@@ -51,12 +31,11 @@ export function useGameLogic() {
       const savedState = localStorage.getItem('eggGame');
       if (savedState) {
         const parsedState = JSON.parse(savedState);
-        // Asegurarse de que todas las propiedades necesarias existan
         return {
-          ...initialGameState,
+          ...initialState,
           ...parsedState,
           profile: {
-            ...initialGameState.profile,
+            ...initialState.profile,
             ...parsedState.profile
           }
         };
@@ -64,27 +43,22 @@ export function useGameLogic() {
     } catch (error) {
       console.error('Error loading game state:', error);
     }
-    return initialGameState;
+    return initialState;
   });
 
   useEffect(() => {
     const interval = setInterval(() => {
       setGameState(current => {
         const updatedEggs = current.eggs.map(egg => {
-          if (egg.status === 'incubating' && Date.now() >= egg.incubationEndTime) {
+          if (egg.status === 'incubating' && egg.incubationEndTime && new Date(egg.incubationEndTime).getTime() <= Date.now()) {
             return { ...egg, status: 'ready' as EggStatus };
           }
           return egg;
         });
 
-        const updatedBoosters = current.activeBoosters.filter(booster => 
-          Date.now() < (booster.startTime + booster.duration * 1000)
-        );
-
         return {
           ...current,
-          eggs: updatedEggs,
-          activeBoosters: updatedBoosters
+          eggs: updatedEggs
         };
       });
     }, 1000);
@@ -133,7 +107,7 @@ export function useGameLogic() {
       eggs: prev.eggs.map(egg => 
         egg.status === 'idle' ? {
           ...egg,
-          status: 'incubating',
+          status: 'incubating' as EggStatus,
           incubationStartTime: now.toISOString(),
           incubationEndTime: endTime.toISOString()
         } : egg
@@ -141,70 +115,11 @@ export function useGameLogic() {
     }));
   }, []);
 
-  const buyMiningRig = useCallback(() => {
-    const rigPrice = 1000;
-    if (gameState.money >= rigPrice) {
-      setGameState(current => ({
-        ...current,
-        money: current.money - rigPrice,
-        miningRig: {
-          level: current.miningRig.level + 1,
-          hashRate: current.miningRig.hashRate + 100
-        },
-        stats: {
-          ...current.stats,
-          totalPower: current.stats.totalPower + 100
-        }
-      }));
-    }
-  }, [gameState.money]);
-
-  const upgradeMiningRig = useCallback(() => {
-    const upgradePrice = 500;
-    if (gameState.money >= upgradePrice) {
-      setGameState(current => ({
-        ...current,
-        money: current.money - upgradePrice,
-        miningRig: {
-          level: current.miningRig.level + 1,
-          hashRate: current.miningRig.hashRate + 50
-        },
-        stats: {
-          ...current.stats,
-          totalPower: current.stats.totalPower + 50
-        }
-      }));
-    }
-  }, [gameState.money]);
-
-  const claimDailyReward = useCallback(() => {
-    const now = Date.now();
-    setGameState(current => {
-      const lastReward = current.lastDailyReward;
-      const reward = 10 * (current.currentStreak + 1);
-
-      return {
-        ...current,
-        money: current.money + reward,
-        currentStreak: lastReward && now - lastReward < 48 * 60 * 60 * 1000 ? current.currentStreak + 1 : 1,
-        lastDailyReward: now,
-        dailyRewards: [...current.dailyRewards, { amount: reward, timestamp: now }]
-      };
-    });
-  }, []);
-
-  const canClaimDailyReward = !gameState.lastDailyReward || 
-    (Date.now() - gameState.lastDailyReward > 24 * 60 * 60 * 1000);
-
   const updateProfile = useCallback((profile: Partial<Profile>) => {
     setGameState(prev => ({
       ...prev,
       profile: { ...prev.profile, ...profile }
     }));
-  }, []);
-
-  const getDonationAddresses = useCallback(() => {
-    return DONATION_ADDRESSES.map(({ symbol, address }) => ({ symbol, address }));
   }, []);
 
   const getDonationTiers = useCallback((): DonationTier[] => {
@@ -303,7 +218,7 @@ export function useGameLogic() {
   const resetGameState = useCallback(() => {
     try {
       localStorage.removeItem('eggGame');
-      setGameState(initialGameState);
+      setGameState(initialState);
     } catch (error) {
       console.error('Error resetting game state:', error);
     }
@@ -314,12 +229,7 @@ export function useGameLogic() {
     buyItem,
     collectEgg,
     startIncubation,
-    buyMiningRig,
-    upgradeMiningRig,
-    claimDailyReward,
-    canClaimDailyReward,
     updateProfile,
-    getDonationAddresses,
     getDonationTiers,
     getCurrentTier,
     getReferralTiers,
